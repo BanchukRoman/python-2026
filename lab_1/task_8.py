@@ -1,22 +1,28 @@
 import random
 
 secret_num = random.randint(1, 100)
+red = "\033[31m"
+green = "\033[32m"
+purple = "\033[35m"
+cyan = "\033[36m"
+reset = "\033[0m"
 
 while True:
-    answer_input = int(input('Введите ваше число от 1 до 100: '))
+    answer_input = int(input(f'{purple}Введите ваше число от 1 до 100: {reset}'))
     if answer_input < secret_num:
-        print('Ваше число меньше')
+        print(f'{red}Ваше число меньше{reset}')
         continue
     elif answer_input > secret_num:
-        print('Ваше число больше')
+        print(f'{red}Ваше число больше{reset}')
         continue
 
     if answer_input == secret_num:
-        print('Вы угадали')
-        again = input('Не хотите сыграть сыграть еще раз? да\нет')
+        print(f'{green}Вы угадали{reset}')
+        again = input(f'{cyan}Не хотите сыграть сыграть еще раз? да\нет: {reset}')
         if again == 'да':
             secret_num = random.randint(1, 100)
-            print('Число загадано')
+            print(f'{cyan}Число загадано{reset}')
             continue
         else:
+            print(f'{red}Будем ждать вас снова{reset}')
             break
