@@ -16,9 +16,15 @@ if not is_guarantors:
     risk_coefficient += 1
 if not is_deposit:
     risk_coefficient += 1
-if dti >= 50:
-    risk_coefficient += 2
+if dti >= 90:
+    risk_coefficient += 6
+elif dti >= 60:
+    risk_coefficient += 5
+elif dti >= 40:
+    risk_coefficient += 4
 elif dti >= 30:
+    risk_coefficient += 2
+elif dti >= 20:
     risk_coefficient += 1
 match credit_history_input:
     case 'отличная':
@@ -43,11 +49,11 @@ elif 4 > risk_coefficient >= 1:
     risk_category = 'средний'
 elif 7 > risk_coefficient >= 4:
     risk_category = 'высокий'
-elif 10 > risk_coefficient >= 7:
+elif risk_coefficient >= 7:
     risk_category = 'критический'
 print(f'Риск: {risk_category}')
 print(f'Процентная ставка {12 + risk_coefficient * .5:.2f}%')
 if 6 > risk_coefficient >= -2:
     print('\033[32mМожно одобрить\033[0m')
-elif 10 > risk_coefficient >= 6:
+elif risk_coefficient >= 6:
     print('\033[31mОдобрение под сомнением\033[0m')
