@@ -10,10 +10,10 @@ reset = "\033[0m"
 while True:
     answer_input = int(input(f'{purple}Введите ваше число от 1 до 100: {reset}'))
     if answer_input < secret_num:
-        print(f'{red}Ваше число меньше{reset}')
+        print(f'{red}Загаданное число больше вашего{reset}')
         continue
     elif answer_input > secret_num:
-        print(f'{red}Ваше число больше{reset}')
+        print(f'{red}Загаданное число меньше вашего{reset}')
         continue
 
     if answer_input == secret_num:
