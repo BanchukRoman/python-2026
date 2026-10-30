@@ -1,3 +1,4 @@
+SUBSISTENCE_MINIMUM = 868
 age_input = int(input('Введите возраст клиента: '))
 salary_input = float(input('Введите вашу зп: '))
 loan_amount_input = float(input('Введите сумму кредита: '))
@@ -8,6 +9,9 @@ is_deposit_input = input('Есть ли залог да/нет: ').lower()
 
 is_guarantors = True if is_guarantors_input == 'да' else False
 is_deposit = True if is_deposit_input == 'да' else False
+if age_input <= 21 or age_input > 58 or salary_input <= SUBSISTENCE_MINIMUM:
+    print('Отказ в кредите')
+    exit()
 
 dti = (loan_amount_input / loan_term_input) / salary_input * 100
 print(f'\nСоотношение кредита к доходу: {dti:.2f}% ')
