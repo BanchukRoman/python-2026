@@ -16,5 +16,8 @@ if is_hb:
 if is_vip:
     if vip_discount >= discount:
         discount = vip_discount
+else:
+    if discount >= 10:
+        discount = 10
 finish_amount = input_amount - input_amount * discount / 100
 print(f"Вы получаете скидку {discount} %, к оплате {finish_amount} руб")
