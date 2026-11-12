@@ -8,17 +8,20 @@ class Faculty:
     def __str__(self):
         return f'На факультете {self.name} есть кафедры {self.departments}'
 
-    def add_students(self,student, specialization_name):
+    def add_students(self,student, specialization_name,term = 1):
         if student.id not in self.students.keys():
             self.students[student.id] = student
             student.specialization = specialization_name
             student.status = 'enrolled'
+            student.term = term
 
 
 
     def remove_students(self,student):
         if student.id in self.students.keys():
             del self.students[student.id]
+            student.specialization = None
+            student.term = None
             student.status = 'expelled'
 
 
@@ -32,7 +35,8 @@ class Faculty:
             student.disciplines[discipline] = None
             return True
 
-    def remove_student_from_discipline(self, student, discipline,):
+    @staticmethod
+    def remove_student_from_discipline(student, discipline,):
         if discipline in student.disciplines.keys():
             del student.disciplines[discipline]
             print('Студент успешно удален из дисциплины')
@@ -40,6 +44,22 @@ class Faculty:
         else:
             print('Студент а нет на этой дисциплине')
             return False
+    @staticmethod
+    def add_mark_to_discipline(student, discipline, mark):
+        if discipline in student.disciplines.keys():
+            student.disciplines[discipline] = mark
+            return True
+        else:
+            print(f'Студент {student.name} не изучает дисциплину: {discipline.name}')
+            return False
+
+    def transfer_to_next_term(self,faculty):
+        for student in self.students.values():
+            for mark in student.disciplines.values():
+                if mark < 4:
+                    faculty.remove_students(student)
+                continue
+            student.term +=1
 
 
     def add_department(self, department):
@@ -90,6 +110,7 @@ class Student:
     def __init__(self, name, student_id):
         self.name = name
         self.id = student_id
+        self.term = None
         self.status = None
         self.specialization = None
         self.disciplines = {}
