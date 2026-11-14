@@ -8,14 +8,16 @@ class Faculty:
     def __str__(self):
         return f'На факультете {self.name} есть кафедры {self.departments}'
 
-    def add_students(self,student, specialization_name,term = 1):
+    def add_students(self,student, specialization_name = None,term = 1):
         if student.id not in self.students.keys():
             self.students[student.id] = student
             student.specialization = specialization_name
             student.status = 'enrolled'
             student.term = term
-
-
+        elif student.specialization is None:
+            student.specialization = specialization_name
+            student.status = 'enrolled'
+            student.term = term
 
     def remove_students(self,student):
         if student.id in self.students.keys():
@@ -23,7 +25,6 @@ class Faculty:
             student.specialization = None
             student.term = None
             student.status = 'expelled'
-
 
     def add_student_to_discipline(self, student, discipline):
         is_available = any(department.can_teach_discipline(student.specialization, discipline) for department in self.departments)
@@ -44,6 +45,7 @@ class Faculty:
         else:
             print('Студент а нет на этой дисциплине')
             return False
+
     @staticmethod
     def add_mark_to_discipline(student, discipline, mark):
         if discipline in student.disciplines.keys():
@@ -61,17 +63,14 @@ class Faculty:
                 continue
             student.term +=1
 
-
     def add_department(self, department):
         self.departments.add(department)
-
 
 class Department:
 
     def __init__(self, name):
         self.name = name
         self.specializations = {}
-
 
     def add_discipline_to_specialization(self,specialization_name ,discipline):
         if specialization_name not in self.specializations:
@@ -87,24 +86,11 @@ class Department:
     def can_teach_discipline(self,specialization_name ,discipline):
         return discipline in self.specializations.get(specialization_name, set())
 
-    # def add_specialization(self, specialization_name):
-    #     set_disciplines = set()
-    #     self.specializations[specialization_name] = set_disciplines
-
-    # def add_student_to_learn(self, student):
-    #     if student.specialization in self.specializations:
-    #         student.disciplines[0] = self.disciplines[0]
-
-
-# class Specialization:
-#     pass
-
 class Discipline:
     def __init__(self, name):
         self.name = name
     def __repr__(self):
         return f'{self.name}'
-
 
 class Student:
     def __init__(self, name, student_id):
@@ -115,28 +101,27 @@ class Student:
         self.specialization = None
         self.disciplines = {}
 
-    def __str__(self):
-        return f'ID: {self.id} Студент: {self.name} Специальность: {self.specialization} Статус: {self.status}'
+    def __repr__(self):
+        return f'ID: {self.id} Студент: {self.name} Специальность: {self.specialization} Семестр: {self.term} Статус: {self.status}'
 
-
-
-
-student1 = Student("Банчук Р.В.", 365)
-student2 = Student("Аксенов Р.В.", 320)
-student3 = Student("Петров Р.В.", 390)
-students = [
-    student1,
-    student2,
-    student3
-]
-# specializations = [
-#     'Прикладная информатика',
-#     'Кибербезопасность',
-#     'Интеллектуальная электроника',
-#     'Радиофизика'
+banchuk = Student("Банчук Р.В.", 365)
+aksenov = Student("Аксенов Р.В.", 320)
+petrov = Student("Петров Р.В.", 390)
+# students = [
+#     student1,
+#     student2,
+#     student3
 # ]
+specializations = {
+    1:'Прикладная информатика',
+    2:'Кибербезопасность',
+    3:'Интеллектуальная электроника',
+    4:'Радиофизика'
+}
 bsu_rfict = Faculty('РФиКТ')
-
+bsu_rfict.add_students(banchuk, 'Прикладная информатика')
+bsu_rfict.add_students(aksenov, )
+bsu_rfict.add_students(petrov, 'Кибербезопасность')
 
 math = Discipline('Матанализ')
 vibecoding = Discipline('Вайбкодинг')
@@ -159,25 +144,39 @@ department1.add_discipline_to_specialization(specialization_name='Кибербе
 # department3.add_discipline_to_specialization(specialization_name='Кибербезопасность',discipline_name='Матанализ')
 # department3.add_discipline_to_specialization(specialization_name='Кибербезопасность',discipline_name='АГиЛА')
 
-print(department1)
-print(department2)
-print(department3)
-print(department1.can_teach_discipline('Кибербезопасность',math))# bsu_rfict.add_department(department1)
-print(bsu_rfict)
-
-# for student in students:
-#     if student.admission_score < 300:
-#         print(f'{student.name} не зачислен')
-#     elif 300 <= student.admission_score < 325:
-#         student.go_to_specialization(specializations[3])
-#         print(student)
-#     elif 325 <= student.admission_score < 350:
-#         student.go_to_specialization(specializations[2])
-#         print(student)
-#     elif 350 <= student.admission_score < 375:
-#         student.go_to_specialization(specializations[1])
-#         print(student)
-#     elif 375 <= student.admission_score < 400:
-#         student.go_to_specialization(specializations[0])
-#         print(student)
+# print(department1)
+# print(department2)
+# print(department3)
+# print(department1.can_teach_discipline('Кибербезопасность',math))# bsu_rfict.add_department(department1)
+# print(bsu_rfict)
+options = {
+    1: 'Зачисление студента на специальность',
+    2:'Отчисление студента',
+    3:'Добавление студента для изучения дисциплины',
+    4:'Удаление студента из списка изучающих дисциплину',
+    5:'Выставление отметки студенту за изученную дисциплину',
+    6:'Перевод студента в следующий семестр',
+    7:'Выбор другого студента',
+    8:'Выход из программы'
+}
+while True:
+    for people in bsu_rfict.students.values():
+        print(people)
+    student_choice_input = int(input('Введите id нужного вам студента: '))
+    print('Опции')
+    for key, value in options.items():
+        print(f'{key}: {value}')
+    option_input = int(input('Выберите номер опции: '))
+    match option_input:
+        case 1:
+            for key, value in specializations.items():
+                print(f'{key}: {value}')
+            specialization_input = int(input('Выберите номер специальности: '))
+            bsu_rfict.add_students(student=bsu_rfict.students[student_choice_input], specialization_name=specializations[specialization_input])
+        case 2:
+            bsu_rfict.remove_students(bsu_rfict.students[student_choice_input])
+            print(f'{bsu_rfict.students[student_choice_input]} отчислен')
+        case 3:
+            # bsu_rfict.add_student_to_discipline()
+            pass
 
