@@ -1,5 +1,3 @@
-from itertools import count
-
 
 class Faculty:
 
@@ -58,21 +56,24 @@ class Faculty:
             return False
 
     def transfer_to_next_term(self, student):
-        attestation = True
         resit_count = 0
+        none_count = 0
         for mark in student.disciplines.values():
             if mark is not None and mark < 4:
                 resit_count += 1
             elif mark is None:
-                attestation = False
+
+                none_count += 1
         if resit_count>=3:
             self.remove_students(student)
-            print(f'Студент: {student.name} отчислен')
-            attestation = False
+            print(f'\033[31mСтудент: {student.name} отчислен\033[0m')
         elif resit_count != 0:
-            print(f'Студент: {student.name} получил пересдач: {resit_count} ')
-        if attestation:
+            print(f'\033[31mСтудент: {student.name} получил пересдач: {resit_count}\033[0m ')
+        elif none_count == 0 and resit_count < 3:
+            print(f'\033[31mСтудент: {student.name} переходит в следующий семестр\033[0m')
             student.term +=1
+        elif none_count != 0:
+            print(f'\033[31mСтудент: {student.name} не закончил: {none_count} дисциплин\033[0m')
 
     def add_department(self, department):
         self.departments.add(department)
@@ -87,6 +88,7 @@ class Department:
         if specialization_name not in self.specializations:
             self.specializations[specialization_name] = set()
         self.specializations[specialization_name].add(discipline)
+        discipline.depart_name = self.name
 
     def __repr__(self):
         return self.name
@@ -100,8 +102,9 @@ class Department:
 class Discipline:
     def __init__(self, name):
         self.name = name
+        self.depart_name = None
     def __repr__(self):
-        return f'{self.name}'
+        return f'{self.depart_name}: Дисциплина: {self.name}'
 
 class Student:
     def __init__(self, name, student_id):
@@ -187,71 +190,113 @@ options = {
     7:'Успеваемость студента',
     8:'Просмотр дисциплин по кафедрам',
     9:'Выбор другого студента',
-    10:'Выход из программы'
+    10:'Выход из программы',
+    11:'получение ведомости в файл',
+    12:'Получение ведомости по определенной дисциплине'
 }
 while True:
     for people in bsu_rfict.students.values():
         print(people)
-    student_id_choice_input = int(input('Введите id нужного вам студента: '))
-    while True:
-        print('Опции')
-        for key, value in options.items():
-            print(f'{key}: {value}')
-        option_input = int(input('Выберите номер опции: '))
-        match option_input:
-            case 1:
-                for key, value in specializations.items():
-                    print(f'{key}: {value}')
-                specialization_input = int(input('Выберите номер специальности: '))
-                bsu_rfict.add_students(student=bsu_rfict.students[student_id_choice_input], specialization_name=specializations[specialization_input])
-            case 2:
-                bsu_rfict.remove_students(bsu_rfict.students[student_id_choice_input])
-                print(f'{bsu_rfict.students[student_id_choice_input]} отчислен')
-            case 3:
-                print('\033[31mДисциплины\033[0m')
-                for key, value in disciplines_set.items():
-                    print(f'{key}: {value}')
-                disciplines_choice_input = int(input('Введите номер дисциплины:'))
-                bsu_rfict.add_student_to_discipline(bsu_rfict.students[student_id_choice_input], disciplines_set[disciplines_choice_input])
-            case 4:
-                print(f'\033[31mДисциплины студента: {bsu_rfict.students[student_id_choice_input].name}\033[0m')
-                for key, value in disciplines_set.items():
-                    if value in bsu_rfict.students[student_id_choice_input].disciplines.keys():
+    try:
+        student_id_choice_input = int(input('Введите id нужного вам студента: '))
+    except ValueError:
+        print('\033[31mНужно ввести число\033[0m')
+        continue
+
+    if student_id_choice_input in bsu_rfict.students.keys():
+        while True:
+            print('Опции')
+            for key, value in options.items():
+                print(f'{key}: {value}')
+            try:
+                option_input = int(input('Выберите номер опции: '))
+            except ValueError:
+                print('\033[31mНужно ввести число\033[0m')
+                continue
+            match option_input:
+                case 1:
+                    for key, value in specializations.items():
                         print(f'{key}: {value}')
-
-                disciplines_choice_input = int(input('Введите номер дисциплины:'))
-                Faculty.remove_student_from_discipline(bsu_rfict.students[student_id_choice_input],disciplines_set[disciplines_choice_input])
-            case 5:
-                print(f'\033[31mДисциплины студента: {bsu_rfict.students[student_id_choice_input].name}\033[0m')
-                for key, value in disciplines_set.items():
-                    if value in bsu_rfict.students[student_id_choice_input].disciplines.keys():
+                    specialization_input = int(input('Выберите номер специальности: '))
+                    bsu_rfict.add_students(student=bsu_rfict.students[student_id_choice_input], specialization_name=specializations[specialization_input])
+                case 2:
+                    bsu_rfict.remove_students(bsu_rfict.students[student_id_choice_input])
+                    print(f'{bsu_rfict.students[student_id_choice_input]} отчислен')
+                case 3:
+                    print('\033[31mДисциплины\033[0m')
+                    for key, value in disciplines_set.items():
                         print(f'{key}: {value}')
-                disciplines_choice_input = int(input('Введите номер дисциплины:'))
-                mark_input = int(input('Введите отметку за дисциплину:'))
-                Faculty.add_mark_to_discipline(bsu_rfict.students[student_id_choice_input],disciplines_set[disciplines_choice_input], mark_input)
-            case 6:
-                bsu_rfict.transfer_to_next_term(bsu_rfict.students[student_id_choice_input])
+                    disciplines_choice_input = int(input('Введите номер дисциплины:'))
+                    bsu_rfict.add_student_to_discipline(bsu_rfict.students[student_id_choice_input], disciplines_set[disciplines_choice_input])
+                case 4:
+                    print(f'\033[31mДисциплины студента: {bsu_rfict.students[student_id_choice_input].name}\033[0m')
+                    for key, value in disciplines_set.items():
+                        if value in bsu_rfict.students[student_id_choice_input].disciplines.keys():
+                            print(f'{key}: {value}')
 
-            case 7:
-                print(f'\033[31mУспеваемость студента: {bsu_rfict.students[student_id_choice_input].name}\033[0m')
-                for key, value in bsu_rfict.students[student_id_choice_input].disciplines.items():
-                    print(f'{key}: \033[33m{value}\033[0m')
+                    disciplines_choice_input = int(input('Введите номер дисциплины:'))
+                    Faculty.remove_student_from_discipline(bsu_rfict.students[student_id_choice_input],disciplines_set[disciplines_choice_input])
+                case 5:
+                    print(f'\033[31mДисциплины студента: {bsu_rfict.students[student_id_choice_input].name}\033[0m')
+                    for key, value in disciplines_set.items():
+                        if value in bsu_rfict.students[student_id_choice_input].disciplines.keys():
+                            print(f'{key}: {value}')
+                    disciplines_choice_input = int(input('Введите номер дисциплины:'))
+                    mark_input = int(input('Введите отметку за дисциплину:'))
+                    Faculty.add_mark_to_discipline(bsu_rfict.students[student_id_choice_input],disciplines_set[disciplines_choice_input], mark_input)
+                case 6:
+                    bsu_rfict.transfer_to_next_term(bsu_rfict.students[student_id_choice_input])
 
-            case 8:
-                for  depart in bsu_rfict.departments:
-                    print(f'{depart}:')
-                    list_disciplines = []
-                    for value in depart.specializations.values():
-                        for element in value:
-                            list_disciplines.append(element)
+                case 7:
+                    print(f'\033[31mУспеваемость студента: {bsu_rfict.students[student_id_choice_input].name}\033[0m')
+                    for key, value in bsu_rfict.students[student_id_choice_input].disciplines.items():
+                        print(f'{key.name}: \033[33m{value}\033[0m')
 
-                    print(f'Дисциплины: {set(list_disciplines)}')
+                case 8:
+                    for  depart in bsu_rfict.departments:
+                        print(f'{depart}:')
+                        list_disciplines = []
+                        for value in depart.specializations.values():
+                            for element in value:
+                                list_disciplines.append(element)
 
-            case 9:
-                break
-            case 10:
-                exit()
+                        print(f'Дисциплины: {set(list_disciplines)}')
 
+                case 9:
+                    break
+                case 10:
+                    exit()
+                case 11:
+                    with open('text.txt', 'w', encoding='utf-8') as f:
+                        avg = 0
+                        mark_count = 0
+                        f.write(f'\tВедомость\n '
+                                f'{bsu_rfict.students[student_id_choice_input]}\n'
+                                f'\tДисциплины\n')
+                        for key, value in bsu_rfict.students[student_id_choice_input].disciplines.items():
+                            f.write(f'{key}: {value}\n')
+                            mark_count += 1
+                            avg += value
+                        f.write(f'Средний балл: {avg/mark_count}\n')
+                        f.close()
+                case 12:
+                    print('\033[31mДисциплины\033[0m')
+                    for key, value in disciplines_set.items():
+                        print(f'{key}: {value.name}')
+                    disciplines_choice_input = int(input('Введите номер дисциплины:'))
+                    for people in bsu_rfict.students.values():
+                        if disciplines_set[disciplines_choice_input] in people.disciplines.keys() and people.disciplines[disciplines_set[disciplines_choice_input]] is not None:
+                            pass
+                    with open('text.txt', 'w', encoding='utf-8') as f:
+                        f.write('Ведомость дисциплины')
+
+
+
+
+                        f.close()
+
+    else:
+        print('\033[31mВведите id существующего студента\033[0m')
 
 
 
